@@ -1,0 +1,28 @@
+{
+    "name": "armincms/iranmobleh",
+    "description": "Iranmobleh.ir",
+    "keywords": [
+        "laravel",
+        "nova"
+    ],
+    "license": "MIT",
+    "require": { 
+        "armincms/koomeh": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Armincms\\iranmobleh\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [ 
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
