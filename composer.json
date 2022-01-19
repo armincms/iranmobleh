@@ -7,7 +7,7 @@
     ],
     "license": "MIT",
     "require": { 
-        "armincms/koomeh": "*"
+        "armincms/koomeh": "dev-master"
     },
     "autoload": {
         "psr-4": {
