@@ -13,12 +13,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Armincms\\iranmobleh\\": "src/"
+            "Armincms\\Iranmobleh\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [ 
+                "Armincms\\Iranmobleh\\ServiceProvider"
             ]
         }
     },
