@@ -30,11 +30,6 @@ class ServiceProvider extends AuthServiceProvider
         $this->templates();
         $this->menus();
         $this->routes(); 
-        $this->app->booted(function() { 
-            app('router')->pushMiddlewareToGroup(
-                'web', \Spatie\ResponseCache\Middlewares\CacheResponse::class
-            ); 
-        });
     }   
 
     /**
