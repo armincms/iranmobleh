@@ -99,7 +99,7 @@ class MyProperty extends GutenbergWidget
     public function serializeForDisplay(): array
     {   
         $eagers = ['propertyType', 'media', 'roomType'];
-        $properties = Property::newModel()->with($eagers)->paginate($this->metaValue('per_page'));
+        $properties = Property::newModel()->authorize()->with($eagers)->paginate($this->metaValue('per_page'));
         $editFramgment = Gutenberg::cachedFragments()->forHandler(PropertyForm::class)->first();
 
         return [
