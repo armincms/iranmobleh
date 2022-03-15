@@ -70,6 +70,19 @@ class EditMyProperty extends GutenbergWidget
     public function serializeForDisplay(): array
     {    
         $resourceId = $this->metaValue('resource.id');
+        $amenities = Amenity::newModel()->get()->map(function($amenity) { 
+            $attached = collect($this->metaValue('resource.amenities'))
+                ->first(function($attached) use ($amenity) {
+                    return $attached->is($amenity);
+                });
+
+            return array_merge($amenity->serializeForWidget($this->getRequest()), [
+                'id' => $amenity->getKey(),
+                'field' => $amenity->field, 
+                'value' => old("amenity.{$amenity->getKey()}", data_get($attached, 'pivot.value')), 
+                'active' => ! is_null($attached),
+            ]);
+        });
 
         return [
             'property' => (array) optional($this->metaValue('resource'))->toArray(),  
@@ -82,11 +95,35 @@ class EditMyProperty extends GutenbergWidget
             'roomTypes' => RoomType::newModel()->get(),
             'paymentBasis' => PaymentBasis::newModel()->get(),
             'reservations' => Reservation::newModel()->get(),
-            'pricings' => Pricing::newModel()->get(),
-            'conditions' => Condition::newModel()->get(),
+            'pricings' => Pricing::newModel()->get()->map(function($pricing) {
+                $attached = collect($this->metaValue('resource.pricings'))
+                    ->first(function($attached) use ($pricing) {
+                        return $attached->is($pricing);
+                    });
+
+                return [
+                    'name' => $pricing->name,
+                    'value' => old("pricing.{$pricing->getKey()}", data_get($attached, 'pivot.amount')),
+                ];
+            }),
+            'conditions' => Condition::newModel()->get()->map(function($condition) {
+                $attached = collect($this->metaValue('resource.conditions'))
+                    ->first(function($attached) use ($condition) {
+                        return $attached->is($condition);
+                    });
+
+                return array_merge($condition->toArray(), [
+                    'active' => old("conditions.{$condition->getKey()}", ! is_null($attached)),
+                ]);
+            }),
             'states' => State::newModel()->get(),
             'cities' => City::newModel()->get(),
             'zones' => Zone::newModel()->get(),
+            'details' => $amenities->keyBy('id'),
+            'groupedDetails' => $amenities->groupBy('group'), 
+            'availableDetails' => $amenities->where('field', 'boolean'),
+            'countableDetails' => $amenities->where('field', 'number'),
+            'descriptiveDetails' => $amenities->where('field', 'text'),
             'old' => session()->getOldInput(),
             'success' => session('success') === true,
             'message' => session('message'),
