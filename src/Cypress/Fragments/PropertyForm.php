@@ -26,6 +26,11 @@ class PropertyForm extends Fragment implements Resolvable
 
         $resource = $this->newQuery($request)->find(array_pop($segments));
 
+        abort_unless(
+            $resource->auth->is($request->user()),
+            403,
+        );
+
         $this->withMeta(compact('resource'));
 
         return true;
@@ -50,7 +55,7 @@ class PropertyForm extends Fragment implements Resolvable
      */
     public function applyQuery($request, $query)
     {
-        return $query->with([
+        return $query->authorize()->with([
             'propertyType', 
             'roomType', 
             'paymentBasis', 
