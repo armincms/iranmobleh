@@ -27,7 +27,7 @@ class PropertyForm extends Fragment implements Resolvable
         $resource = $this->newQuery($request)->find(array_pop($segments));
 
         abort_unless(
-            $resource->auth->is($request->user()),
+            ! $resource || $resource->auth->is($request->user()),
             403,
         );
 
