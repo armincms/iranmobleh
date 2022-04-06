@@ -120,7 +120,7 @@ class EditMyProperty extends GutenbergWidget
             'cities' => City::newModel()->get(),
             'zones' => Zone::newModel()->get(),
             'details' => $amenities->keyBy('id'),
-            'groupedDetails' => $amenities->groupBy('group'), 
+            'groupedDetails' => $amenities->groupBy('group_id'), 
             'availableDetails' => $amenities->where('field', 'boolean'),
             'countableDetails' => $amenities->where('field', 'number'),
             'descriptiveDetails' => $amenities->where('field', 'text'),
