@@ -106,6 +106,8 @@ class MyProperty extends GutenbergWidget
             'items' => $properties->getCollection()->map(function($property) use ($editFramgment) {
                 $attributes = $property->serializeForIndexWidget($this->getRequest());
                 $attributes['editUrl'] = optional($editFramgment)->getUrl($property->getKey());
+                $attributes['csrf_token'] = csrf_token();
+                $attributes['deleteUrl'] = route('iranmoble.property.delete', $property);
 
                 return $this->displayResource($attributes, Property::class);
             })->implode(''),

@@ -76,16 +76,25 @@ class EditMyProperty extends GutenbergWidget
                     return $attached->is($amenity);
                 });
 
+            $oldValue = is_array(old("amenity.{$amenity->getKey()}"))
+                ? collect(old('amenities'))->contains($amenity->getKey())
+                : old("amenity.{$amenity->getKey()}");
+
             return array_merge($amenity->serializeForWidget($this->getRequest()), [
                 'id' => $amenity->getKey(),
                 'field' => $amenity->field, 
-                'value' => old("amenity.{$amenity->getKey()}", data_get($attached, 'pivot.value')), 
+                'value' => $oldValue ?: data_get($attached, 'pivot.value'), 
                 'active' => ! is_null($attached),
             ]);
-        });
+        }); 
 
         return [
             'property' => (array) optional($this->metaValue('resource'))->toArray(),  
+            'oldIamges' => with($this->metaValue('resource'), function($property) {
+                if (! $property) return [];
+
+                return $property->media->keyBy->getKey()->map->getUrl()->all();
+            }),
             'storeUrl' => $resourceId 
                 ? route('iranmoble.property.update', $resourceId) 
                 : route('iranmoble.property.store') , 
@@ -102,8 +111,9 @@ class EditMyProperty extends GutenbergWidget
                     });
 
                 return [
+                    'id' => $pricing->getKey(),
                     'name' => $pricing->name,
-                    'value' => old("pricing.{$pricing->getKey()}", data_get($attached, 'pivot.amount')),
+                    'value' => old("pricing.{$pricing->getKey()}.value", data_get($attached, 'pivot.amount')),
                 ];
             }),
             'conditions' => Condition::newModel()->get()->map(function($condition) {

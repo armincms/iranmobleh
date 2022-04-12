@@ -30,6 +30,7 @@ class Request extends FormRequest
 
     public function getPropertyAttributes()
     {
+        $this->allFiles();
         $attributes = [
             'property_type_id',
             'room_type_id',
@@ -44,6 +45,7 @@ class Request extends FormRequest
             'long',
             'payment_basis_id',
             'reservation_id',
+            'marked_as',
         ];
 
         return tap($this->only($attributes), function(&$attributes) {
@@ -51,11 +53,30 @@ class Request extends FormRequest
             $attributes['address::'.app()->getLocale()] = $this->input('address');
             $attributes['condition::'.app()->getLocale()] = $this->input('condition');
             $attributes['summary::'.app()->getLocale()] = $this->input('summary');
+            $attributes['content::'.app()->getLocale()] = $this->input('content');
             $attributes['condition::'.app()->getLocale()] = $this->input('condition');
             $attributes['locale::'.app()->getLocale()] = app()->getLocale();
             $attributes['auth_id'] = $this->user()->getKey();
         });
     }
+
+    public function prepareAmenitiesForStorage()
+    { 
+        $callback = function($amenity, $key) { 
+            if (intval($amenity) === 1) {
+                return [ $key => [ 'value' => 1 ] ];
+            } else if (intval($amenity)) {        
+                return [ 
+                    $amenity => [ 'value' => 1 ]
+                ];  
+            } else {
+                return [null => null];
+            } 
+        };
+        return collect($this->get('amenities'))->mapWithKeys($callback)->filter()->union(
+            $this->get('amenity', [])
+        )->filter(); 
+    } 
 
     public function rules()
     {  
@@ -75,7 +96,10 @@ class Request extends FormRequest
             'long' => 'required',
             'payment_basis_id' => 'required|numeric', 
             'reservation_id' => 'required|numeric', 
-            'images.*' => 'required|image'
+            'images' => $this->route('property') ? 'sometimes' : 'required',
+            'images.*' => 'image',
+            'pricing' => 'required',
+            'pricing.*.amount' => 'numeric', 
         ];
     }
 }
