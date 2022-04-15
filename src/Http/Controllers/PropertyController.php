@@ -3,6 +3,7 @@
 namespace Armincms\Iranmobleh\Http\Controllers; 
 
 use Armincms\Iranmobleh\Cypress\Fragments\PropertyForm;   
+use Armincms\Iranmobleh\Http\Requests\DeleteRequest; 
 use Armincms\Iranmobleh\Http\Requests\StoreRequest; 
 use Armincms\Iranmobleh\Http\Requests\UpdateRequest;
 use Zareismail\Gutenberg\Gutenberg;
