@@ -113,6 +113,7 @@ class MyProperty extends GutenbergWidget
             })->implode(''),
 
             'pagination' => $this->displayResource($properties->toArray(), 'pagination'),
+            'session' => session()->all(), 
         ];
     }
 
