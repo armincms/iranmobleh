@@ -8,4 +8,9 @@ class DeleteRequest extends Request
     {
         return optional($this->user())->can('delete', $this->findResource());
     } 
+
+    public function rules()
+    { 
+        return [];
+    }
 }
