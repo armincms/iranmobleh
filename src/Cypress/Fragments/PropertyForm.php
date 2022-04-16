@@ -56,6 +56,7 @@ class PropertyForm extends Fragment implements Resolvable
     public function applyQuery($request, $query)
     {
         return $query->authorize()->with([
+            'propertyLocality', 
             'propertyType', 
             'roomType', 
             'paymentBasis', 

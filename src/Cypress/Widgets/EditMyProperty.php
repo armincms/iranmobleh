@@ -12,6 +12,7 @@ use Armincms\Koomeh\Nova\Condition;
 use Armincms\Koomeh\Nova\PaymentBasis;   
 use Armincms\Koomeh\Nova\Pricing;   
 use Armincms\Koomeh\Nova\Property;   
+use Armincms\Koomeh\Nova\PropertyLocality;   
 use Armincms\Koomeh\Nova\PropertyType;   
 use Armincms\Koomeh\Nova\Reservation;   
 use Armincms\Koomeh\Nova\RoomType;   
@@ -156,6 +157,7 @@ class EditMyProperty extends GutenbergWidget
                 : route('iranmoble.property.store') , 
             'csrf_token' => csrf_token(),
             'errors' => (array) $this->metaValue('errors'),
+            'propertyLocalities' => PropertyLocality::newModel()->get(),
             'propertyTypes' => PropertyType::newModel()->get(),
             'roomTypes' => RoomType::newModel()->get(),
             'paymentBasis' => PaymentBasis::newModel()->get(),

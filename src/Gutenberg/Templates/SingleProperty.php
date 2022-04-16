@@ -51,6 +51,12 @@ class SingleProperty extends Template
 
             Variable::make('address', __('Property full address')), 
 
+            Variable::make('propertyLocality.name', __('Property Locality Name')),
+
+            Variable::make('propertyLocality.icon', __('Property Locality Icon')),
+
+            Variable::make('propertyLocality.help', __('Property Locality Help')),
+
             Variable::make('propertyType.name', __('Property Type Name')),
 
             Variable::make('propertyType.icon', __('Property Type Icon')),

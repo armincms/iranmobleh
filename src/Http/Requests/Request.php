@@ -32,6 +32,7 @@ class Request extends FormRequest
     {
         $this->allFiles();
         $attributes = [
+            'property_locality_id',
             'property_type_id',
             'room_type_id',
             'city_id',
@@ -82,6 +83,7 @@ class Request extends FormRequest
     {  
         return [
             'name' => 'required|string',
+            'property_locality_id' => 'required|numeric', 
             'property_type_id' => 'required|numeric', 
             'room_type_id' => 'required|numeric', 
             'city_id' => 'required|numeric', 
