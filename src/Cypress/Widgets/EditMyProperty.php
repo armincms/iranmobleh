@@ -83,9 +83,13 @@ class EditMyProperty extends GutenbergWidget
             return false;
         }
 
-        return collect($request->user()->profile)->filter(function($value, $key) {
-            return $this->metaValue("profile.guarded.{$key}") && blank($value);
-        })->isEmpty();
+        $callback = function($value, $key) use ($request) {
+            $profileValue = data_get($request->user()->profile, $key);
+
+            return $value && blank($profileValue);
+        };
+       
+        return collect($this->metaValue('profile.guarded'))->filter($callback)->isEmpty();
     }
 
     /**
@@ -109,6 +113,7 @@ class EditMyProperty extends GutenbergWidget
                 'mobile' => __('Mobile Number'),
                 'phone' => __('Phone Number'),
                 'avatar' => __('Avatar'),
+                'gender' => __('Gender'),
             ]),
         ];
     }
