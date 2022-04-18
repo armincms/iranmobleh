@@ -8,6 +8,7 @@ use Armincms\Contract\Gutenberg\Widgets\ResolvesDisplay;
 use Armincms\Iranmobleh\Cypress\Fragments\PropertyForm;   
 use Armincms\Iranmobleh\Gutenberg\Templates\MyPropertyTableRow;   
 use Armincms\Iranmobleh\Gutenberg\Templates\PropertyTable;   
+use Armincms\Koomeh\Nova\Promotion;   
 use Armincms\Koomeh\Nova\Property;   
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;    
@@ -113,7 +114,8 @@ class MyProperty extends GutenbergWidget
             })->implode(''),
 
             'pagination' => $this->displayResource($properties->toArray(), 'pagination'),
-            'session' => session()->all(), 
+            'promotions' => Promotion::newModel()->actives()->get()->toArray(),
+            'session' => session()->all(),
         ];
     }
 
