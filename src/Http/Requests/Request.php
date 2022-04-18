@@ -104,4 +104,45 @@ class Request extends FormRequest
             'pricing.*.amount' => 'numeric', 
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array
+     */
+    public function attributes()
+    {
+        return [
+            'name' => __('Name'),
+            'property_locality_id' => __('Locality'),
+            'property_type_id' => __('Property Type'),
+            'room_type_id' => __('Room Type'),
+            'city_id' => __('City'),
+            'state_id' => __('State'),
+            'zone_id' => __('Zone'),
+            'address' => __('Address'),
+            'minimum_reservation' => __('Minimum of reservation'),
+            'accommodation' => __('Accommodation'),
+            'max_accommodation' => __('Maximum of accommodation'),
+            'max_accommodation_payment' => __('Maximum of accommodation payment'),
+            'lat' => __('Latitude'),
+            'long' => __('Longitude'),
+            'payment_basis_id' => __('Payment Basis'),
+            'reservation_id' => __('Rservation'),
+            'images' => __('Image'),
+            'images.*' => __('Images'),
+            'pricing' => __('Pricing'),
+            'pricing.*.amount' => __('Pricing Amount'),
+        ];
+    }
 }
