@@ -99,22 +99,24 @@ class MyProperty extends GutenbergWidget
      */
     public function serializeForDisplay(): array
     {   
+        $promotions = Promotion::newModel()->actives()->get()->toArray();
         $eagers = ['propertyType', 'media', 'roomType'];
         $properties = Property::newModel()->authorize()->with($eagers)->paginate($this->metaValue('per_page'));
         $editFramgment = Gutenberg::cachedFragments()->forHandler(PropertyForm::class)->first();
+        $callback = function($property) use ($editFramgment, $promotions) {
+            $attributes = $property->serializeForIndexWidget($this->getRequest());
+            $attributes['editUrl'] = optional($editFramgment)->getUrl($property->getKey());
+            $attributes['csrf_token'] = csrf_token();
+            $attributes['deleteUrl'] = route('iranmoble.property.delete', $property);
+            $attributes['promotions'] = $promotions;
+
+            return $this->displayResource($attributes, Property::class);
+        };
 
         return [
-            'items' => $properties->getCollection()->map(function($property) use ($editFramgment) {
-                $attributes = $property->serializeForIndexWidget($this->getRequest());
-                $attributes['editUrl'] = optional($editFramgment)->getUrl($property->getKey());
-                $attributes['csrf_token'] = csrf_token();
-                $attributes['deleteUrl'] = route('iranmoble.property.delete', $property);
-
-                return $this->displayResource($attributes, Property::class);
-            })->implode(''),
+            'items' => $properties->getCollection()->map($callback)->implode(''),
 
             'pagination' => $this->displayResource($properties->toArray(), 'pagination'),
-            'promotions' => Promotion::newModel()->actives()->get()->toArray(),
             'session' => session()->all(),
         ];
     }
