@@ -108,6 +108,7 @@ class MyProperty extends GutenbergWidget
             $attributes['editUrl'] = optional($editFramgment)->getUrl($property->getKey());
             $attributes['csrf_token'] = csrf_token();
             $attributes['deleteUrl'] = route('iranmoble.property.delete', $property);
+            $attributes['promotionUrl'] = route('iranmoble.property.promotion', $property);
             $attributes['promotions'] = $promotions;
 
             return $this->displayResource($attributes, Property::class);

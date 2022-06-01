@@ -1,7 +1,10 @@
 <?php
 
 namespace Armincms\Iranmobleh;
- 
+
+use Armincms\Orderable\Events\OrderVerified;
+use Armincms\Koomeh\Models\KoomehProperty;
+use Armincms\Koomeh\Models\KoomehPromotion;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider;   
 use Laravel\Nova\Nova as LaravelNova;
 use Zareismail\Gutenberg\Gutenberg;
