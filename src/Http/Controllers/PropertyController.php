@@ -2,6 +2,12 @@
 
 namespace Armincms\Iranmobleh\Http\Controllers;
 
+use Armincms\Koomeh\Nova\PaymentBasis;
+use Armincms\Koomeh\Nova\PropertyLocality;
+use Armincms\Koomeh\Nova\PropertyType;
+use Armincms\Koomeh\Nova\Reservation;
+use Armincms\Koomeh\Nova\RoomType;
+use Armincms\Location\Nova\Zone;
 use Armincms\Iranmobleh\Cypress\Fragments\PropertyForm;
 use Armincms\Iranmobleh\Http\Requests\DeleteRequest;
 use Armincms\Iranmobleh\Http\Requests\StoreRequest;
@@ -15,36 +21,32 @@ class PropertyController extends Controller
 {
     public function store(StoreRequest $request)
     {
+        $zone = Zone::newModel()->with('city')->first();
+
         $resource = $request
             ->newModel()
-            ->forceFill($request->getPropertyAttributes());
-        $resource->save();
-
-        $resource->amenities()->sync($request->prepareAmenitiesForStorage());
-        $resource->conditions()->sync((array) $request->get("conditions"));
-        $resource->pricings()->sync((array) $request->get("pricing"));
-
-        if ($request->hasFile(["images"])) {
-            $images = collect($request->file("images"))->map(function (
-                $file,
-                $key
-            ) {
-                return "images.{$key}";
-            });
-            $resource
-                ->addMultipleMediaFromRequest($images->values()->all())
-                ->each->toMediaCollection("gallery");
-        }
+            ->forceFill($request->getPropertyAttributes([
+                'property_locality_id' => PropertyLocality::newModel()->first()->getKey(),
+                'property_type_id' =>  PropertyType::newModel()->first()->getKey(),
+                'room_type_id' =>  RoomType::newModel()->first()->getKey(),
+                'city_id' => $zone->city->getKey(),
+                'state_id' => $zone->city->state_id,
+                'zone_id' => $zone->getKey(),
+                'payment_basis_id' => PaymentBasis::newModel()->first()->getKey(),
+                'reservation_id' => Reservation::newModel()->first()->getKey(),
+            ]));
+        $resource->save(); 
 
         $editFramgment = Gutenberg::cachedFragments()
             ->forHandler(PropertyForm::class)
-            ->first();
+            ->first(); 
 
         return redirect()
             ->to($editFramgment->getUrl($resource->getKey()))
             ->with([
-                "success" => true,
-                "message" => __("Your data was stored"),
+                "success"   => true,
+                "message"   => __("Your data was stored"),
+                "step"      => 1,
             ]);
     }
 
@@ -55,9 +57,17 @@ class PropertyController extends Controller
             ->forceFill($request->getPropertyAttributes());
         $resource->save();
 
-        $resource->amenities()->sync($request->prepareAmenitiesForStorage());
-        $resource->conditions()->sync((array) $request->get("conditions"));
-        $resource->pricings()->sync((array) $request->get("pricing"));
+        if ($request->exists('amenities')) {
+            $resource->amenities()->sync($request->prepareAmenitiesForStorage()); 
+        }
+
+        if ($request->exists('conditions')) {
+            $resource->conditions()->sync((array) $request->get("conditions"));
+        }
+
+        if ($request->exists('pricing')) { 
+            $resource->pricings()->sync((array) $request->get("pricing"));
+        }
 
         $resource->media->each(function ($media) use ($request) {
             if (collect($request->get("oldIamges"))->doesntContain($media->getKey())) {
@@ -75,10 +85,10 @@ class PropertyController extends Controller
                 ->each->toMediaCollection("gallery");
         }
 
-        return back()->with([
+        return [
             "success" => true,
             "message" => __("Your data was stored"),
-        ]);
+        ];
     }
 
     public function delete(DeleteRequest $request)

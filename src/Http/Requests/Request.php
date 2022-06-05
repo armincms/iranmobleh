@@ -28,36 +28,48 @@ class Request extends FormRequest
         return optional($this->user())->can('create', $this->newModel());
     }
 
-    public function getPropertyAttributes()
-    {
-        $this->allFiles();
-        $attributes = [
-            'property_locality_id',
-            'property_type_id',
-            'room_type_id',
-            'city_id',
-            'state_id',
-            'zone_id',
-            'minimum_reservation',
-            'accommodation',
-            'max_accommodation',
-            'max_accommodation_payment',
-            'lat',
-            'long',
-            'payment_basis_id',
-            'reservation_id',
-            'marked_as',
-        ];
+    public function getPropertyAttributes($defaults = [])
+    { 
+        $resource = $this->findResource();
 
-        return tap($this->only($attributes), function(&$attributes) {
-            $attributes['name::'.app()->getLocale()] = $this->input('name');
-            $attributes['address::'.app()->getLocale()] = $this->input('address');
-            $attributes['condition::'.app()->getLocale()] = $this->input('condition');
-            $attributes['summary::'.app()->getLocale()] = $this->input('summary');
-            $attributes['content::'.app()->getLocale()] = $this->input('content');
-            $attributes['condition::'.app()->getLocale()] = $this->input('condition');
-            $attributes['locale::'.app()->getLocale()] = app()->getLocale();
-            $attributes['auth_id'] = $this->user()->getKey();
+        $attributes = collect([
+            'property_locality_id' => 0,
+            'property_type_id' => 0,
+            'room_type_id' => 0,
+            'city_id' => 0,
+            'state_id' => 0,
+            'zone_id' => 0,
+            'minimum_reservation' => 1,
+            'accommodation' => 1,
+            'max_accommodation' => 1,
+            'max_accommodation_payment' => 1,
+            'lat' => null,
+            'long' => null,
+            'payment_basis_id' => 0,
+            'reservation_id' => 0,
+            'marked_as' => 'draft',
+        ])->merge($defaults)->map(function($value, $key) use ($resource) {
+            return $resource ? data_get($resource, $key) : $value;
+        }); 
+
+        return with($attributes->merge($this->only($attributes->keys()->all())), function($attributes) {
+            collect([
+                'name',
+                'address',
+                'condition',
+                'summary',
+                'content',
+                'condition'
+            ])->each(function($attribute) use ($attributes) {
+                if ($this->exists($attribute)) {
+                    $attributes->put("{$attribute}::".app()->getLocale(), $this->input($attribute));
+                }
+            }); 
+ 
+            $attributes->put('locale::'.app()->getLocale(), app()->getLocale());
+            $attributes->put('auth_id', $this->user()->getKey());
+
+            return $attributes->toArray();
         });
     }
 
@@ -82,25 +94,25 @@ class Request extends FormRequest
     public function rules()
     {  
         return [
-            'name' => 'required|string',
-            'property_locality_id' => 'required|numeric', 
-            'property_type_id' => 'required|numeric', 
-            'room_type_id' => 'required|numeric', 
-            'city_id' => 'required|numeric', 
-            'state_id' => 'required|numeric', 
-            'zone_id' => 'required|numeric', 
-            'address' => 'required|string', 
-            'minimum_reservation' => 'required|numeric', 
-            'accommodation' => 'required|numeric', 
-            'max_accommodation' => 'required|numeric', 
-            'max_accommodation_payment' => 'required|numeric', 
-            'lat' => 'required',
-            'long' => 'required',
-            'payment_basis_id' => 'required|numeric', 
-            'reservation_id' => 'required|numeric', 
-            'images' => $this->route('property') ? 'sometimes' : 'required',
+            'name' => 'sometimes|string',
+            'property_locality_id' => 'sometimes|numeric', 
+            'property_type_id' => 'sometimes|numeric', 
+            'room_type_id' => 'sometimes|numeric', 
+            'city_id' => 'sometimes|numeric', 
+            'state_id' => 'sometimes|numeric', 
+            'zone_id' => 'sometimes|numeric', 
+            'address' => 'sometimes|string', 
+            'minimum_reservation' => 'sometimes|numeric', 
+            'accommodation' => 'sometimes|numeric', 
+            'max_accommodation' => 'sometimes|numeric', 
+            'max_accommodation_payment' => 'sometimes|numeric', 
+            'lat' => 'sometimes',
+            'long' => 'sometimes',
+            'payment_basis_id' => 'sometimes|numeric', 
+            'reservation_id' => 'sometimes|numeric', 
+            'images' => 'sometimes',
             'images.*' => 'image',
-            'pricing' => 'required',
+            'pricing' => 'sometimes',
             'pricing.*.amount' => 'numeric', 
         ];
     }

@@ -195,6 +195,9 @@ class EditMyProperty extends GutenbergWidget
             'old' => session()->getOldInput(),
             'success' => session('success') === true,
             'message' => session('message'),
+            'form' => [
+                'step' => intval(session('step')),
+            ]
         ];
     }
 
