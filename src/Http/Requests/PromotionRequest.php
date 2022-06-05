@@ -16,7 +16,7 @@ class PromotionRequest extends Request
         ];
     }
 
-    public function getPropertyAttributes()
+    public function getPropertyAttributes($defaults = [])
     {
         return [
             'promotion' => __('Promotion')
