@@ -13,6 +13,7 @@ use Armincms\Iranmobleh\Http\Requests\DeleteRequest;
 use Armincms\Iranmobleh\Http\Requests\StoreRequest;
 use Armincms\Iranmobleh\Http\Requests\PromotionRequest;
 use Armincms\Iranmobleh\Http\Requests\UpdateRequest;
+use Armincms\Iranmobleh\Http\Requests\UploadRequest;
 use Armincms\Koomeh\Nova\Promotion;
 use Armincms\Orderable\Nova\Order;
 use Zareismail\Gutenberg\Gutenberg;
@@ -69,21 +70,21 @@ class PropertyController extends Controller
             $resource->pricings()->sync((array) $request->get("pricing"));
         }
 
-        $resource->media->each(function ($media) use ($request) {
-            if (collect($request->get("oldIamges"))->doesntContain($media->getKey())) {
-                $media->delete();
-            }
-        });
+        // $resource->media->each(function ($media) use ($request) {
+        //     if (collect($request->get("oldIamges"))->doesntContain($media->getKey())) {
+        //         $media->delete();
+        //     }
+        // });
 
-        if ($request->hasFile("images")) {
-            $images = collect($request->file("images"))->map(function ($file, $key) {
-                return "images.{$key}";
-            });
+        // if ($request->hasFile("images")) {
+        //     $images = collect($request->file("images"))->map(function ($file, $key) {
+        //         return "images.{$key}";
+        //     });
 
-            $resource
-                ->addMultipleMediaFromRequest($images->values()->all())
-                ->each->toMediaCollection("gallery");
-        }
+        //     $resource
+        //         ->addMultipleMediaFromRequest($images->values()->all())
+        //         ->each->toMediaCollection("gallery");
+        // }
 
         return [
             "success" => true,
@@ -118,5 +119,24 @@ class PropertyController extends Controller
         });
 
         return $order->redirect($request);
+    }
+
+    public function upload(UploadRequest $request)
+    {
+        $resource = $request->findResource();
+ 
+        $resource->createMultipleFromRequest('file')->map->toCollection('gallery');
+
+        return [
+            'success' => true,
+            'message' => __('Files uploaded successfully'),
+            'media' => $resource->media->map(function($media) {
+                return [
+                    'id' => $media->getKey(),
+                    'url' => $media->getUrl(),
+                    'order' => $media->order_column,
+                ];
+            })->toJson(),
+        ];
     }
 }

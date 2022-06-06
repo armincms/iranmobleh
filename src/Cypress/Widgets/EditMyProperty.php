@@ -147,14 +147,19 @@ class EditMyProperty extends GutenbergWidget
 
         return [
             'property' => (array) optional($this->metaValue('resource'))->toArray(),  
-            'oldIamges' => with($this->metaValue('resource'), function($property) {
-                if (! $property) return [];
-
-                return $property->media->keyBy->getKey()->map->getUrl()->all();
-            }),
+            'media' => ! $this->metaValue('resource') 
+                ? '[]'
+                : $this->metaValue('resource')->media->map(function($media) {
+                    return [
+                        'id' => $media->getKey(),
+                        'url' => $media->getUrl(),
+                        'order' => $media->order_column,
+                    ];
+                })->toJson(),
             'storeUrl' => $resourceId 
                 ? route('iranmoble.property.update', $resourceId) 
                 : route('iranmoble.property.store') , 
+            'uploadUrl' => $resourceId ? route('iranmoble.property.upload', $resourceId) : '#!', 
             'csrf_token' => csrf_token(),
             'errors' => (array) $this->metaValue('errors'),
             'propertyLocalities' => PropertyLocality::newModel()->get(),

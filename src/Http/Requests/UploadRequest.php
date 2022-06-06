@@ -2,7 +2,7 @@
 
 namespace Armincms\Iranmobleh\Http\Requests; 
 
-class PromotionRequest extends Request
+class UploadRequest extends Request
 {  
     public function authorize()
     {
@@ -12,7 +12,7 @@ class PromotionRequest extends Request
     public function rules()
     { 
         return [
-            'promotion' => 'required|numeric'
+            'file.*' => 'image'
         ];
     }
 
@@ -24,7 +24,7 @@ class PromotionRequest extends Request
     public function attributes()
     {
         return [
-            'promotion' => __('Promotion')
+            'file.*' => __('Image')
         ];
     }
 }
