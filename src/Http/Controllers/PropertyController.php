@@ -15,7 +15,7 @@ use Armincms\Iranmobleh\Http\Requests\PromotionRequest;
 use Armincms\Iranmobleh\Http\Requests\UpdateRequest;
 use Armincms\Iranmobleh\Http\Requests\UploadRequest;
 use Armincms\Koomeh\Nova\Promotion;
-use Armincms\Orderable\Nova\Order;
+use Armincms\Orderable\Nova\Order; 
 use Zareismail\Gutenberg\Gutenberg;
 
 class PropertyController extends Controller
@@ -70,22 +70,6 @@ class PropertyController extends Controller
             $resource->pricings()->sync((array) $request->get("pricing"));
         }
 
-        // $resource->media->each(function ($media) use ($request) {
-        //     if (collect($request->get("oldIamges"))->doesntContain($media->getKey())) {
-        //         $media->delete();
-        //     }
-        // });
-
-        // if ($request->hasFile("images")) {
-        //     $images = collect($request->file("images"))->map(function ($file, $key) {
-        //         return "images.{$key}";
-        //     });
-
-        //     $resource
-        //         ->addMultipleMediaFromRequest($images->values()->all())
-        //         ->each->toMediaCollection("gallery");
-        // }
-
         return [
             "success" => true,
             "message" => __("Your data was stored"),
@@ -122,21 +106,56 @@ class PropertyController extends Controller
     }
 
     public function upload(UploadRequest $request)
-    {
-        $resource = $request->findResource();
- 
-        $resource->createMultipleFromRequest('file')->map->toCollection('gallery');
+    {  
+        $request->findResource()->addMultipleMediaFromRequest(['file'])->map->toMediaCollection('gallery');
 
         return [
             'success' => true,
             'message' => __('Files uploaded successfully'),
-            'media' => $resource->media->map(function($media) {
-                return [
-                    'id' => $media->getKey(),
-                    'url' => $media->getUrl(),
-                    'order' => $media->order_column,
-                ];
-            })->toJson(),
+            'media' => $this->gallery($request)->toJson(),
         ];
+    }
+
+    public function deleteMedia(UpdateRequest $request)
+    { 
+        $request->findResource()->media->each(function ($media) use ($request) {
+            if ($media->getKey() === $request->route('media')) {
+                $media->delete();
+            }
+        }); 
+
+        return [
+            'success' => true,
+            'message' => __('File removed successfully'),
+            'media' => $this->gallery($request)->toJson(),
+        ];
+    }
+
+    public function promotionMedia(UpdateRequest $request)
+    { 
+        $request->findResource()->media->each(function ($media) use ($request) { 
+            $media->forceFill([ 
+                'order_column' => $media->getKey() === $request->route('media') ? 0 : $media->getKey(),
+            ]);
+
+            $media->save();
+        }); 
+
+        return [
+            'success' => true,
+            'message' => __('File updated successfully'),
+            'media' => $this->gallery($request)->toJson(),
+        ];
+    }
+
+    public function gallery($request)
+    {
+        return $request->findResource()->media->sortBy('order_column')->map(function($media) {
+            return [
+                'id' => $media->getKey(),
+                'url' => $media->getUrl(),
+                'order' => $media->order_column,
+            ];
+        });
     }
 }

@@ -159,7 +159,9 @@ class EditMyProperty extends GutenbergWidget
             'storeUrl' => $resourceId 
                 ? route('iranmoble.property.update', $resourceId) 
                 : route('iranmoble.property.store') , 
-            'uploadUrl' => $resourceId ? route('iranmoble.property.upload', $resourceId) : '#!', 
+            'uploadUrl' => $resourceId ? route('iranmoble.media.upload', $resourceId) : '#!', 
+            'deleteMediaUrl' => $resourceId ? route('iranmoble.media.delete', [$resourceId, 0]) : '#!', 
+            'promotionMediaUrl' => $resourceId ? route('iranmoble.media.promotion', [$resourceId, 0]) : '#!', 
             'csrf_token' => csrf_token(),
             'errors' => (array) $this->metaValue('errors'),
             'propertyLocalities' => PropertyLocality::newModel()->get(),
