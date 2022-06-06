@@ -20,3 +20,4 @@ Route::delete('/properties/{property}', PropertyController::class.'@delete')->na
 Route::post('/properties/{property}/promotion', PropertyController::class.'@promotion')->name('iranmoble.property.promotion');  
 Route::post('/properties/{property}/media', PropertyController::class.'@upload')->name('iranmoble.media.upload');  
 Route::delete('/properties/{property}/media/{media}', PropertyController::class.'@deleteMedia')->name('iranmoble.media.delete');  
+Route::delete('/properties/{property}/media/{media}', PropertyController::class.'@promotionMedia')->name('iranmoble.media.promotion');  
