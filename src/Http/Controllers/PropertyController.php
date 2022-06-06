@@ -119,7 +119,7 @@ class PropertyController extends Controller
     public function deleteMedia(UpdateRequest $request)
     { 
         $request->findResource()->media->each(function ($media) use ($request) {
-            if ($media->getKey() === $request->route('media')) {
+            if ($media->getKey() == $request->route('media')) {
                 $media->delete();
             }
         }); 
@@ -135,7 +135,7 @@ class PropertyController extends Controller
     { 
         $request->findResource()->media->each(function ($media) use ($request) { 
             $media->forceFill([ 
-                'order_column' => $media->getKey() === $request->route('media') ? 0 : $media->getKey(),
+                'order_column' => $media->getKey() == $request->route('media') ? 0 : $media->getKey(),
             ]);
 
             $media->save();
@@ -150,7 +150,7 @@ class PropertyController extends Controller
 
     public function gallery($request)
     {
-        return $request->findResource()->media->sortBy('order_column')->map(function($media) {
+        return $request->findResource()->media->sortBy('order_column')->values()->map(function($media) {
             return [
                 'id' => $media->getKey(),
                 'url' => $media->getUrl(),
