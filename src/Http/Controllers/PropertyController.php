@@ -15,7 +15,7 @@ use Armincms\Iranmobleh\Http\Requests\PromotionRequest;
 use Armincms\Iranmobleh\Http\Requests\UpdateRequest;
 use Armincms\Iranmobleh\Http\Requests\UploadRequest;
 use Armincms\Koomeh\Nova\Promotion;
-use Armincms\Orderable\Nova\Order; 
+use Armincms\Orderable\Nova\Order;
 use Zareismail\Gutenberg\Gutenberg;
 
 class PropertyController extends Controller
@@ -30,17 +30,16 @@ class PropertyController extends Controller
                 'property_locality_id' => PropertyLocality::newModel()->first()->getKey(),
                 'property_type_id' =>  PropertyType::newModel()->first()->getKey(),
                 'room_type_id' =>  RoomType::newModel()->first()->getKey(),
-                'city_id' => $zone->city->getKey(),
-                'state_id' => $zone->city->state_id,
-                'zone_id' => $zone->getKey(),
                 'payment_basis_id' => PaymentBasis::newModel()->first()->getKey(),
                 'reservation_id' => Reservation::newModel()->first()->getKey(),
             ]));
-        $resource->save(); 
+        \Schema::disableForeignKeyConstraints();
+        $resource->save();
+        \Schema::enableForeignKeyConstraints();
 
         $editFramgment = Gutenberg::cachedFragments()
             ->forHandler(PropertyForm::class)
-            ->first(); 
+            ->first();
 
         return redirect()
             ->to($editFramgment->getUrl($resource->getKey()))
@@ -59,14 +58,14 @@ class PropertyController extends Controller
         $resource->save();
 
         if ($request->exists('amenities')) {
-            $resource->amenities()->sync($request->prepareAmenitiesForStorage()); 
+            $resource->amenities()->sync($request->prepareAmenitiesForStorage());
         }
 
         if ($request->exists('conditions')) {
             $resource->conditions()->sync((array) $request->get("conditions"));
         }
 
-        if ($request->exists('pricing')) { 
+        if ($request->exists('pricing')) {
             $resource->pricings()->sync((array) $request->get("pricing"));
         }
 
@@ -106,7 +105,7 @@ class PropertyController extends Controller
     }
 
     public function upload(UploadRequest $request)
-    {  
+    {
         $request->findResource()->addMultipleMediaFromRequest(['file'])->map->toMediaCollection('gallery');
 
         return [
@@ -117,12 +116,12 @@ class PropertyController extends Controller
     }
 
     public function deleteMedia(UpdateRequest $request)
-    { 
+    {
         $request->findResource()->media->each(function ($media) use ($request) {
             if ($media->getKey() == $request->route('media')) {
                 $media->delete();
             }
-        }); 
+        });
 
         return [
             'success' => true,
@@ -132,14 +131,14 @@ class PropertyController extends Controller
     }
 
     public function promotionMedia(UpdateRequest $request)
-    { 
-        $request->findResource()->media->each(function ($media) use ($request) { 
-            $media->forceFill([ 
+    {
+        $request->findResource()->media->each(function ($media) use ($request) {
+            $media->forceFill([
                 'order_column' => $media->getKey() == $request->route('media') ? 0 : $media->getKey(),
             ]);
 
             $media->save();
-        }); 
+        });
 
         return [
             'success' => true,
